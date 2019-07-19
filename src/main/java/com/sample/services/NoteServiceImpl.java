@@ -2,6 +2,10 @@ package com.sample.services;
 
 import com.sample.entities.Note;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import com.sample.entities.repos.UserRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +56,7 @@ public class NoteServiceImpl{
     public List<Note> findAllOrderByAsc(String username) {
         //return noteRepository.findAllByUsernameOrderByNoteIdAsc(username);
 
-        String sql = String.format("select * from Note where username = %s", username);
+        String sql = String.format("select * from Note where username = '%s'", username);
 
         List<Note> notes = this.jdbcTemplate.query(sql,
         new RowMapper<Note>() {
@@ -70,7 +74,7 @@ public class NoteServiceImpl{
     public List<Note> findAllOrderByDesc(String username) {
         //return noteRepository.findAllByUsernameOrderByNoteIdDesc(username);
 
-        String sql = String.format("select * from Note where username = %s ORDER BY note_id DESC", username);
+        String sql = String.format("select * from Note where username = '%s' ORDER BY note_id DESC", username);
 
         List<Note> notes = this.jdbcTemplate.query(sql,
                 new RowMapper<Note>() {
