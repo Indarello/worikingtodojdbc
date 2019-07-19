@@ -1,0 +1,125 @@
+1)Регистрируемся по адресу: .../registration  (МОЖНО ПРОПУСТИТЬ, ЕСЛИ ЕСТЬ АККАУНТ)
+@POST 
+	Request Params:
+	username* : 
+		type: string
+	password* :
+		type: string
+
+Возвращает :
+{
+	"success":boolean,
+	"message":"text"
+}
+Дальше идём ->
+
+
+=========================================
+2)Авторизация по адресу: .../login
+@POST
+	Request Params:
+	username* : 
+		type: string
+	password* :
+		type: string
+Возвращает либо ошибку с описанием, либо код 200 и конструкцию json:
+
+{
+
+    "accessToken": "закодированныйтокен",
+
+    "tokenType": "Bearer"
+
+}
+Дальше идём ->
+
+
+=========================================
+3)Вывод список записей:  .../todos
+@GET запрос со стандартным Authorization Bearer Token заголовком
+key:"Authorization" value:"Bearer токенпользователя"
+Возвращает json-объект вида
+[
+{
+"noteId":1,
+"username":"admin",
+"text":"Make Todolist App",
+"status":false
+},
+{
+"noteId":2,
+"username":"admin",
+"text":"Learn Spring",
+"status":false
+}
+]
+
+=========================================
+4)ДОБАВЛЕНИЕ записи:  .../addNote
+@POST запрос со стандартным Authorization Bearer Token заголовком
+key:"Authorization" value:"Bearer токенпользователя"
+	Request Params:
+	text* : 
+		type: string
+Возвращает:
+{
+	"success":boolean,
+	"message":"text"
+}
+
+Создает запись в БД со статусом "false" и привязкой к авторизованному пользователю. 
+После создания перейти к пункту 3 (открыть обновлённый список).
+
+=========================================
+5)ИЗМЕНИТЬ СТАТУС записи (сделано\не сделано): .../status
+@PUT запрос со стандартным Authorization Bearer Token заголовком
+key:"Authorization" value:"Bearer токенпользователя"
+Request Params:
+(id записи) id* : 
+		type: integer
+(новый стат)status* :
+		type: boolean
+Обновить список записей (пункт 3)
+
+Возвращает :
+{
+	"success":boolean,
+	"message":"text"
+}
+
+=========================================
+6)РЕДАКТИРОВАТЬ запись: .../edit
+@PUT запрос со стандартным Authorization Bearer Token заголовком
+key:"Authorization" value:"Bearer токенпользователя"
+Request Params:
+(id записи) id* : 
+		type: integer
+(новый стат)status* :
+		type: boolean
+	    text* :
+		type: string
+
+Возвращает :
+{
+	"success":boolean,
+	"message":"text"
+}
+
+Обновить список записей (пункт 3)
+
+=========================================
+7)УДАЛИТЬ запись  .../delete
+@DELETE запрос со стандартным Authorization Bearer Token заголовком
+key:"Authorization" value:"Bearer токенпользователя"
+Request Params:
+	id:
+		type: Integer
+Возвращает :
+
+{
+	"success":boolean,
+	"message":"text"
+}
+
+Обновить список записей (пункт 3)
+	
