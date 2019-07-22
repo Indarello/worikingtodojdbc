@@ -38,7 +38,7 @@ public class NoteController {
     @CrossOrigin("/*")
     @GetMapping(value="/todos", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public @ResponseBody ResponseEntity<?> list(@RequestHeader("Authorization") String token){
-
+/*
         try {
             logger.info("time for todo:" + System.nanoTime());
             String username = securityService.getUserByToken(token.substring(7, token.length()));
@@ -51,6 +51,8 @@ public class NoteController {
             return new ResponseEntity<Object>(
                     new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
+ */
+        return new ResponseEntity<Object>(new ApiResponse(false, "testing"), HttpStatus.BAD_REQUEST);
     }
 
     private List<Note> filterAndSort(String username) {
