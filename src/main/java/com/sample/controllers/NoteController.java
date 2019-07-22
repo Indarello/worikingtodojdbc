@@ -40,8 +40,11 @@ public class NoteController {
     public @ResponseBody ResponseEntity<?> list(@RequestHeader("Authorization") String token){
 
         try {
+            logger.info("time for todo:" + System.nanoTime());
             String username = securityService.getUserByToken(token.substring(7, token.length()));
+            logger.info("time for todo2:" + System.nanoTime());
             List<Note> notes = filterAndSort(username);
+
             return new ResponseEntity<List<Note>>(notes, HttpStatus.OK);
         }catch (Exception e)
         {
@@ -57,8 +60,8 @@ public class NoteController {
                 notebook = noteservice.findAllOrderByAsc(username);
                 break;
             case "DESC":
-                //notebook = noteservice.findAllOrderByDesc(username);
-                notebook = speedingservice.getUsersNotes(username);
+                notebook = noteservice.findAllOrderByDesc(username);
+                //notebook = speedingservice.getUsersNotes(username);
                 break;
         }
         System.out.println("Получено " + notebook.size());
@@ -72,8 +75,8 @@ public class NoteController {
 
         try {
             String username = securityService.getUserByToken(token.substring(7, token.length()));
-            //noteservice.saveNote(new Note(username, obj.get("text").asText()));
-            speedingservice.saveNote(new Note(username, obj.get("text").asText()));
+            noteservice.saveNote(new Note(username, obj.get("text").asText()));
+            //speedingservice.saveNote(new Note(username, obj.get("text").asText()));
             return new ResponseEntity<Object>(
                     new ApiResponse(true, "Note added successfully"), HttpStatus.OK);
         }catch (Exception e){
@@ -96,8 +99,8 @@ public class NoteController {
         boolean status = obj.get("status").asBoolean();
 
         try{
-            //noteservice.setNoteStatus(id, status);
-            speedingservice.setNoteStatus(id, status);
+            noteservice.setNoteStatus(id, status);
+            //speedingservice.setNoteStatus(id, status);
             return new ResponseEntity<Object>(new ApiResponse(true,"Note status updated"),HttpStatus.OK);
         }catch (Exception e) {
             return new ResponseEntity<Object>(
@@ -118,7 +121,7 @@ public class NoteController {
 
         try{
             noteservice.updateNote(id, text, status);
-           // speedingservice.updateNote(id, text, status);
+            //speedingservice.updateNote(id, text, status);
             return new ResponseEntity<Object>(new ApiResponse(true,"Note edited"),HttpStatus.OK);
         }catch (Exception e) {
             return new ResponseEntity<Object>(
@@ -134,8 +137,8 @@ public class NoteController {
         String username = securityService.getUserByToken(token.substring(7,token.length()));
         Integer id = note.get("id").asInt();
         try{
-            //noteservice.deleteNote(id);
-            speedingservice.deleteNote(id);
+            noteservice.deleteNote(id);
+            //speedingservice.deleteNote(id);
             return new ResponseEntity<Object>(new ApiResponse(true,"Note deleted"),HttpStatus.OK);
         }catch (Exception e) {
             return new ResponseEntity<Object>(
