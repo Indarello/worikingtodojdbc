@@ -1,5 +1,6 @@
 package com.sample.token;
 
+import com.sample.services.Speedingservice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
@@ -17,6 +18,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 @Component
@@ -24,6 +27,7 @@ import java.util.logging.Logger;
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = Logger.getLogger(AuthenticationFilter.class.getName());
+    private List<UserDetails> userdetails  = new ArrayList<UserDetails>();
 
     @Autowired
     TokenProvider tokenProvider;
@@ -31,17 +35,40 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     UserDetailsService userDetailsService;
 
+    @Autowired
+    private Speedingservice speedingservice;
+
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         try{
+            logger.info("time for filter 1:" + System.nanoTime());
             String jwt = getJwtFromRequest(httpServletRequest);
-
+            logger.info("time for filter 2:" + System.nanoTime());
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String username = tokenProvider.getUsernameFromJWT(jwt);
+                logger.info("time for filter 3:" + System.nanoTime());
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = null;
+                List<UserDetails> userDet = new ArrayList<UserDetails>();
+                boolean founded = false;
+                for(UserDetails tempdet: userdetails) {
+                    if (tempdet.getUsername().equals(username)) {
+                        userDetails = tempdet;
+                        founded = true;
+                        break;
+                    }
+                }
+                if(!founded) {
+                    UserDetails TempDetails = userDetailsService.loadUserByUsername(username);
+                    userdetails.add(TempDetails);
+                    userDetails = TempDetails;
+                }
+                logger.info("User details: " + userDetails);
+                logger.info("time for filter 4:" + System.nanoTime());
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                logger.info("time for filter 5:" + System.nanoTime());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                logger.info("time for filter 6:" + System.nanoTime());
                 logger.info("authentication in filter");
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

@@ -2,9 +2,12 @@ package com.sample.services;
 import com.sample.services.NoteServiceImpl;
 import com.sample.entities.Note;
 import com.sample.controllers.NoteController;
+import com.sample.services.UserDetailsServiceImpl;
 import com.sample.entities.Note;
 import com.sample.entities.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,10 +30,14 @@ public class Speedingservice {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
+    UserDetailsService userDetailsService;
     private int temporalid = -10;
 
     //private
     private List<Note> userstodos = new ArrayList<Note>();
+
+    private List<UserDetails> userdetails  = new ArrayList<UserDetails>();
 
     public List<Note> getUsersNotes(String username)
     {
@@ -88,5 +95,19 @@ public class Speedingservice {
                 break;
             }
         }
+    }
+
+    public UserDetails getSpeedDetails(String username)
+    {
+        List<UserDetails> userDet = new ArrayList<UserDetails>();
+
+        for(UserDetails tempdet: userdetails) {
+            if (tempdet.getUsername().equals(username)) {
+                return tempdet;
+            }
+        }
+        UserDetails TempDetails = userDetailsService.loadUserByUsername(username);
+        userdetails.add(TempDetails);
+        return TempDetails;
     }
 }
