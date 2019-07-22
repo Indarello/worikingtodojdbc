@@ -39,10 +39,11 @@ public class NoteController {
     @GetMapping(value="/todos", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public @ResponseBody ResponseEntity<?> list(@RequestHeader("Authorization") String token){
         try {
-
+            logger.info("todos 1: \n" + System.nanoTime());
             String username = securityService.getUserByToken(token.substring(7, token.length()));
 
             List<Note> notes = filterAndSort(username);
+            logger.info("todos 2: \n" + System.nanoTime());
             return new ResponseEntity<List<Note>>(notes, HttpStatus.OK);
         }catch (Exception e)
         {
