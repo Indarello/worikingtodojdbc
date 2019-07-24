@@ -21,7 +21,8 @@ import java.util.logging.Logger;
  * RestAPI, обеспечивает обработку запросов внешнего приложения.
  */
 @RestController
-public class UserController {
+public class UserController
+{
 
     public static final Logger logger = Logger.getLogger(UserController.class.getName());
 
@@ -38,8 +39,9 @@ public class UserController {
     private UserValidator userValidator;
 
 
-    @PostMapping(path="/registration", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<?> registration(@RequestBody Login login){
+    @PostMapping(path = "/registration", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> registration(@RequestBody Login login)
+    {
 
         String token = "Token is not generated, please sign in using /login";
         logger.info("Registration started");
@@ -47,42 +49,48 @@ public class UserController {
 
         ApiResponse valid = userValidator.validateRegistration(login);
 
-        if(valid.getSuccess()){
+        if (valid.getSuccess())
+        {
             userService.save(user);
 
-            try {
+            try
+            {
                 token = tokenProvider.createToken(securityService.autoLogin(user.getUsername(), user.getPassword()));
-            } catch (Exception e){
+            } catch (Exception e)
+            {
                 logger.info(e.getMessage());
                 return new ResponseEntity(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity(new AuthenticationResponse(token)
-                    ,HttpStatus.OK);
+                    , HttpStatus.OK);
         }
 
         return new ResponseEntity(
-                    valid, HttpStatus.BAD_REQUEST);
+                valid, HttpStatus.BAD_REQUEST);
     }
 
 
     @CrossOrigin("/*")
-    @PostMapping(path="/login", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public @ResponseBody ResponseEntity<?> login(@RequestBody Login login){
+    @PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public @ResponseBody
+    ResponseEntity<?> login(@RequestBody Login login)
+    {
 
         String token;
 
         boolean valid = userValidator.validateAuthorization(login);
 
         logger.info("Login started");
-        if(valid == false){
+        if (valid == false)
+        {
             logger.info("Username is not found");
-           return new ResponseEntity(
-                   new ApiResponse(false,"Username is not found"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(
+                    new ApiResponse(false, "Username is not found"), HttpStatus.BAD_REQUEST);
         }
 
-        token = tokenProvider.createToken(securityService.autoLogin(login.getUsername(),login.getPassword()));
+        token = tokenProvider.createToken(securityService.autoLogin(login.getUsername(), login.getPassword()));
 
-        return new ResponseEntity(new AuthenticationResponse(token),HttpStatus.OK);
+        return new ResponseEntity(new AuthenticationResponse(token), HttpStatus.OK);
     }
 
 }

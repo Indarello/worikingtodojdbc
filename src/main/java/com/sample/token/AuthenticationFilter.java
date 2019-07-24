@@ -24,10 +24,11 @@ import java.util.logging.Logger;
 
 @Component
 @Order(1)
-public class AuthenticationFilter extends OncePerRequestFilter {
+public class AuthenticationFilter extends OncePerRequestFilter
+{
 
     private static final Logger logger = Logger.getLogger(AuthenticationFilter.class.getName());
-    private List<UserDetails> userdetails  = new ArrayList<UserDetails>();
+    private List<UserDetails> userdetails = new ArrayList<UserDetails>();
 
     @Autowired
     TokenProvider tokenProvider;
@@ -39,56 +40,55 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     private Speedingservice speedingservice;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        try{
-            logger.info("time for filter 1:" + System.nanoTime());
+    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException
+    {
+        try
+        {
             String jwt = getJwtFromRequest(httpServletRequest);
-            logger.info("time for filter 2:" + System.nanoTime());
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt))
+            {
                 String username = tokenProvider.getUsernameFromJWT(jwt);
-                logger.info("time for filter 3:" + System.nanoTime());
 
                 UserDetails userDetails = null;
                 List<UserDetails> userDet = new ArrayList<UserDetails>();
                 boolean founded = false;
-                for(UserDetails tempdet: userdetails) {
-                    if (tempdet.getUsername().equals(username)) {
+                for (UserDetails tempdet : userdetails)
+                {
+                    if (tempdet.getUsername().equals(username))
+                    {
                         userDetails = tempdet;
                         founded = true;
                         break;
                     }
                 }
-                if(!founded) {
+                if (!founded)
+                {
                     UserDetails TempDetails = userDetailsService.loadUserByUsername(username);
                     userdetails.add(TempDetails);
                     userDetails = TempDetails;
                 }
-                logger.info("User details: " + userDetails);
-                logger.info("time for filter 4:" + System.nanoTime());
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                logger.info("time for filter 5:" + System.nanoTime());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-                logger.info("time for filter 6:" + System.nanoTime());
-                logger.info("authentication in filter");
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception ex) {
-            logger.info("Could not set user authentication in security context: "+ ex.getMessage());
+        } catch (Exception ex)
+        {
+            logger.info("Could not set user authentication in security context: " + ex.getMessage());
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
 
     }
 
-    private String getJwtFromRequest(HttpServletRequest request){
-        logger.info("Getting JWT from request");
+    private String getJwtFromRequest(HttpServletRequest request)
+    {
         String bearerToken = request.getHeader("Authorization");
-        if(StringUtils.hasText(bearerToken)&&bearerToken.startsWith("Bearer")){
-            return bearerToken.substring(7,bearerToken.length());
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer"))
+        {
+            return bearerToken.substring(7, bearerToken.length());
         }
         return null;
     }
-
 
 
 }

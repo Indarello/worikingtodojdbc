@@ -14,13 +14,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.logging.Logger;
+
 /**
  * Контроллер для работы с заметками (просмотр, добавление, изменение статуса, редактирование, удаление).
  * RestAPI, обеспечивает обработку запросов внешнего приложения.
  */
 
 @RestController
-public class NoteController {
+public class NoteController
+{
 
     public static final Logger logger = Logger.getLogger(NoteController.class.getName());
 
@@ -36,25 +38,28 @@ public class NoteController {
     private Speedingservice speedingservice;
 
     @CrossOrigin("/*")
-    @GetMapping(value="/todos", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public @ResponseBody ResponseEntity<?> list(@RequestHeader("Authorization") String token){
-        try {
-            logger.info("todos 1: \n" + System.nanoTime());
+    @GetMapping(value = "/todos", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public @ResponseBody
+    ResponseEntity<?> list(@RequestHeader("Authorization") String token)
+    {
+        try
+        {
             String username = securityService.getUserByToken(token.substring(7, token.length()));
 
             List<Note> notes = filterAndSort(username);
-            logger.info("todos 2: \n" + System.nanoTime());
             return new ResponseEntity<List<Note>>(notes, HttpStatus.OK);
-        }catch (Exception e)
+        } catch (Exception e)
         {
             return new ResponseEntity<Object>(
                     new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
- }
+    }
 
-    private List<Note> filterAndSort(String username) {
+    private List<Note> filterAndSort(String username)
+    {
         List<Note> notebook = null;
-        switch (sortDateMethod) {
+        switch (sortDateMethod)
+        {
             case "ASC":
                 notebook = noteservice.findAllOrderByAsc(username);
                 break;
@@ -70,15 +75,18 @@ public class NoteController {
 
     @CrossOrigin("/addNote")
     @PostMapping(value = "/addNote", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<?> updateNote(@RequestHeader("Authorization") String token, @RequestBody ObjectNode obj) {
+    public ResponseEntity<?> updateNote(@RequestHeader("Authorization") String token, @RequestBody ObjectNode obj)
+    {
 
-        try {
+        try
+        {
             String username = securityService.getUserByToken(token.substring(7, token.length()));
             //noteservice.saveNote(new Note(username, obj.get("text").asText()));
             speedingservice.saveNote(new Note(username, obj.get("text").asText()));
             return new ResponseEntity<Object>(
                     new ApiResponse(true, "Note added successfully"), HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e)
+        {
             return new ResponseEntity<Object>(
                     new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
@@ -89,57 +97,66 @@ public class NoteController {
 
     @CrossOrigin("/status")
     @PutMapping(value = "/status", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<Object> edit(@RequestHeader("Authorization") String token, @RequestBody ObjectNode obj) {
+    public ResponseEntity<Object> edit(@RequestHeader("Authorization") String token, @RequestBody ObjectNode obj)
+    {
 
         logger.info("request header is: \n" + token);
 
-        String username = securityService.getUserByToken(token.substring(7,token.length()));
+        String username = securityService.getUserByToken(token.substring(7, token.length()));
         Integer id = obj.get("id").asInt();
         boolean status = obj.get("status").asBoolean();
 
-        try{
+        try
+        {
             //noteservice.setNoteStatus(id, status);
-            speedingservice.setNoteStatus(id, status);
-            return new ResponseEntity<Object>(new ApiResponse(true,"Note status updated"),HttpStatus.OK);
-        }catch (Exception e) {
+            speedingservice.setNoteStatus(username, id, status);
+            return new ResponseEntity<Object>(new ApiResponse(true, "Note status updated"), HttpStatus.OK);
+        } catch (Exception e)
+        {
             return new ResponseEntity<Object>(
                     new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST); //возвращаем view с редактированием
         }
     }
 
-    @PutMapping(value="/edit", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<Object> saveNote(@RequestHeader("Authorization") String token, @RequestBody ObjectNode note) {
+    @PutMapping(value = "/edit", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Object> saveNote(@RequestHeader("Authorization") String token, @RequestBody ObjectNode note)
+    {
 
         logger.info("request header is: \n" + token);
 
-        String username = securityService.getUserByToken(token.substring(7,token.length()));
+        String username = securityService.getUserByToken(token.substring(7, token.length()));
 
         Integer id = note.get("id").asInt();
         String text = note.get("text").asText();
         boolean status = note.get("status").asBoolean();
 
-        try{
+        try
+        {
             noteservice.updateNote(id, text, status);
             //speedingservice.updateNote(id, text, status);
-            return new ResponseEntity<Object>(new ApiResponse(true,"Note edited"),HttpStatus.OK);
-        }catch (Exception e) {
+            return new ResponseEntity<Object>(new ApiResponse(true, "Note edited"), HttpStatus.OK);
+        } catch (Exception e)
+        {
             return new ResponseEntity<Object>(
                     new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<Object> delete(@RequestHeader("Authorization") String token, @RequestBody ObjectNode note) {
+    public ResponseEntity<Object> delete(@RequestHeader("Authorization") String token, @RequestBody ObjectNode note)
+    {
 
         logger.info("request header is: \n" + token);
 
-        String username = securityService.getUserByToken(token.substring(7,token.length()));
+        String username = securityService.getUserByToken(token.substring(7, token.length()));
         Integer id = note.get("id").asInt();
-        try{
+        try
+        {
             //noteservice.deleteNote(id);
-            speedingservice.deleteNote(id);
-            return new ResponseEntity<Object>(new ApiResponse(true,"Note deleted"),HttpStatus.OK);
-        }catch (Exception e) {
+            speedingservice.deleteNote(username, id);
+            return new ResponseEntity<Object>(new ApiResponse(true, "Note deleted"), HttpStatus.OK);
+        } catch (Exception e)
+        {
             return new ResponseEntity<Object>(
                     new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }

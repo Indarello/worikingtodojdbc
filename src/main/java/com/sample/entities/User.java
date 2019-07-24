@@ -18,62 +18,75 @@ import java.util.HashSet;
  **/
 @Entity
 @Table(name = "users", schema = "heroku_778f00b1b8e6900")
-public class User implements UserDetails {
+public class User implements UserDetails
+{
 
     @Id
     @Column(name = "username")
     private String username;
 
-    @Column(name="password")
+    @Column(name = "password")
     private String password;
 
-    public void setUsername(String username) {
+    public void setUsername(String username)
+    {
         this.username = username;
     }
 
-    public String getUsername() {
+    public String getUsername()
+    {
         return username;
     }
 
     @Override
-    public boolean isAccountNonExpired() {
+    public boolean isAccountNonExpired()
+    {
         return true;
     }
 
     @Override
-    public boolean isAccountNonLocked() {
+    public boolean isAccountNonLocked()
+    {
         return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired() {
+    public boolean isCredentialsNonExpired()
+    {
         return true;
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled()
+    {
         return true;
     }
 
-    public User(){}
+    public User()
+    {
+    }
 
-    public User(String username, String password){
+    public User(String username, String password)
+    {
         this.username = username;
         this.password = password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
         this.password = password;
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities()
+    {
         HashSet<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
         authorities.add(new SimpleGrantedAuthority("USER"));
         return authorities;
     }
 
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
 }
