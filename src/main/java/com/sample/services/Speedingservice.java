@@ -23,6 +23,8 @@ import java.util.logging.Logger;
 
 /**
  * Сервис для ускорения работы всего приложения.
+ * Хранение записей задач в памяти и сохранение в базу данных
+ * если пользователь был неактивен определенное время, с удалением из памяти
  */
 
 @Service
@@ -33,7 +35,7 @@ public class Speedingservice
     @Autowired
     private NoteServiceImpl noteservice;
 
-    private int temporalid = -1;
+    private int lastdatabaseid = -1;
 
     private List<Note> userstodos = new ArrayList<Note>();
 
@@ -83,22 +85,14 @@ public class Speedingservice
     public List<Note> getUsersNotes(String username)
     {
         updateactivity(username);
-        List<Note> userNotes = new ArrayList<Note>();
-        List<Note> tempuserNotes1;
         List<Note> tempuserNotes2;
-
-        tempuserNotes1 = userstodos.stream()
-                .filter(a -> a.getUsername().equals(username) && a.getNoteId() < 0)
-                .sorted(Comparator.comparing(Note::getNoteId))
-                .collect(Collectors.toList());
 
         tempuserNotes2 = userstodos.stream()
                 .filter(a -> a.getUsername().equals(username) && a.getNoteId() > 0)
                 .sorted(Comparator.comparing(Note::getNoteId).reversed())
                 .collect(Collectors.toList());
 
-        userNotes.addAll(tempuserNotes1);
-        userNotes.addAll(tempuserNotes2);
+        List<Note> userNotes = new ArrayList<Note>(tempuserNotes2);
 
         if (!userNotes.isEmpty())
         {
@@ -114,8 +108,8 @@ public class Speedingservice
     {
         checkforcached(note.getUsername());
         updateactivity(note.getUsername());
-        temporalid++;
-        note.setNoteId(temporalid);
+        lastdatabaseid++;
+        note.setNoteId(lastdatabaseid);
         userstodos.add(note);
     }
 
@@ -152,9 +146,9 @@ public class Speedingservice
     @Scheduled(fixedRate = 15000)
     public void UpdateWithDataBase()
     {
-        if(temporalid == -1)
+        if(lastdatabaseid == -1)
         {
-            temporalid = noteservice.getlastid();
+            lastdatabaseid = noteservice.getlastid();
         }
         logger.info("Making schedule  " + System.currentTimeMillis());
 
